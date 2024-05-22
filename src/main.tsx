@@ -5,7 +5,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-// const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
+const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
 (async () => {
   const LDProvider = await asyncWithLDProvider({
@@ -21,9 +21,9 @@ import "./index.css";
   root.render(
     <React.StrictMode>
       <LDProvider>
-        {/* <ConvexProvider client={convex}> */}
+        <ConvexProvider client={convex}>
             <App />
-        {/* </ConvexProvider> */}
+        </ConvexProvider>
       </LDProvider>
     </React.StrictMode>,
   );

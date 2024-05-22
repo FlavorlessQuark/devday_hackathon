@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation, action } from "./_generated/server";
-import { api } from "./_generated/api";
+import { api } from "./_generated/api.js";
 
 // BEDROCK STUFF
 
@@ -8,6 +8,7 @@ import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedroc
 
 // a client can be shared by different commands.
 
+const bedrockClient = new BedrockRuntimeClient({ region: "us-west-2", credentials: { secretAccessKey: "nlnzS6Gy/6R5C/IGzSpDrUgJhDtPXjCC3HEHwZI5", accessKeyId: "ASIAWVHY2QFWHDWAUDPT", sessionToken: "IQoJb3JpZ2luX2VjEOz//////////wEaCXVzLWVhc3QtMSJHMEUCIQDo2vg38h9bPboqDjSmJ9twjPLkb2bg7Bp+ONp6HInwKQIgDrlPlJ/EnDqa73ePKz3QCNE/BRYa/PHmxRrxWvkWVD4qmQIIZRAAGgw0NTc5MzU4NDc3ODgiDKEd+kgY6cZe2akRpSr2Adn24ztU3zW7RMoHQ2rzwY+mg00UB+6+ndMp3EdGlEI2SfMsK3wjnpKmMKSGA7nvaPwkWAivl105d0RiJtx6XOt5p6ql2sS3hOb+hniD9a3L6sZcVjwM5hON3yk301t3kueHVlAowGWvNTQXhItGkYaFXTt6rLpp4WCTWIFYchVkjKflGuRIYVLnaFs3bLZTSekDw/WaCzz+J0f1BoE/I7XQ25pKCJ0jRzXSCluAjC2RjH+M3GqmJN44stWIeQfXYehReyH9vQYU8VJoNL5u2seoUq8wmnPfGQ7W3uOvv8DkZlCQnpqly5RVpt18QPvT8bLbrorxRTDgkbmyBjqdAU1rd9CLeJNdBKF1rB+jxnDwpN47EiYqYJds9OinHpsOzX5NzU4eB/CJ34iO+ydZL8TE75mckVIL59alAM44WRB8z4y0Tsdt9SyRgE9VI84OiZHoTzOlJqMZTFud09A4rEhnVvJyoeeQC59zzzYUK3tWP00GzvIMCl+xRyX0kjUoFjC8zzX6/yRnBYZSjfuvXCzZI+p/voznQxehLIc="}, logger: undefined });
 // END BEDROCK STUFF
 
 // Write your Convex functions in any file inside this directory (`convex`).
@@ -83,7 +84,7 @@ export const myAction = action({
 });
 
 
-// ACTUAL CODE - NOT DEMO STUFF :) 
+// ACTUAL CODE - NOT DEMO STUFF :)
 
 export const setGeneratedImage = mutation({
   // Validators for arguments.
@@ -140,8 +141,8 @@ export const runModel = action({
           "taskType": "INPAINTING",
           "inPaintingParams": {
               "image": args.image,
-              "maskPrompt": "red",                                       
-          },                                                 
+              "maskPrompt": "red",
+          },
           "imageGenerationConfig": {
               "numberOfImages": 1,
               "height": 500,
@@ -169,6 +170,6 @@ export const runModel = action({
     //   // error handling.
     //   // const { requestId, cfId, extendedRequestId } = error?.$metadata;
     //   console.log({ error });
-    // }    
+    // }
   },
 });
