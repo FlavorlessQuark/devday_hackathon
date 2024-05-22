@@ -73,3 +73,17 @@ export const myAction = action({
     });
   },
 });
+
+// You can fetch data from and send data to third-party APIs via an action:
+export const runModel = action({
+  // Validators for arguments.
+  args: {
+    first: v.number(),
+    second: v.string(),
+  },
+
+  // Action implementation.
+  handler: async (ctx, args) => {
+    
+  },
+});
