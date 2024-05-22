@@ -7,6 +7,9 @@ import DragDropFile from "drag-drop-file-tk"
 import noimg from "../assets/noimg.png"
 import { useEffect, useState } from "react";
 
+import { useMutation, useQuery, useAction } from "convex/react";
+// import { api } from "../convex/_generated/api";
+
 const Home = () => {
 
     // const numbers = useQuery(api.myFunctions.listNumbers, { count: 10 });
@@ -17,14 +20,53 @@ const Home = () => {
     const handleChange = (files:any) => {
         // Handle selected files here
         setFile(files[0])
+        console.log(files[0])
     };
 
+    // const setGeneratedImage = useMutation(api.myFunctions.setGeneratedImage);
+    // const generatedImage = useQuery(api.myFunctions.getGeneratedImage);
+    // const runModelAction = useAction(api.myFunctions.runModel)
 
-    const sendData = () => {
+    async function getBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = () => {
+            resolve(reader.result)
+            }
+            reader.onerror = reject
+        })
+    }
+
+// usage
+
+
+
+    const changeOptionValue = (e:string, val: string) => {
+        if (vselect[e].unique === true)
+            options[e] = val;
+        else if (!options[e].includes(val)){
+            options[e].push(val);
+        }
+        console.log(options);
+        setOptions(options)
+    }
+
+    const sendData = async() => {
+        await getBase64(file) // `file` your img file
+        .then(res => console.log(res)) // `res` base64 of img file
+        .catch(err => console.log(err))
 
     }
 
-    const dummyflags = ["1", "2", "3"]
+    const  isSelected = (e, val) => {
+        console.log("Is selected? ", val)
+        if (vselect[e].unique && options[e] == val)
+            return true;
+        if (options[e].includes(val))
+            return true;
+        return true;
+    }
 
     useEffect(() => {
         if (vselect)
@@ -48,21 +90,22 @@ const Home = () => {
             <FlagsArea>
                 {
                     Object.keys(vselect).map((e) => (
-                        <FlagsSection>
+                        <FlagsSection>``
                             <FlagsSectionTitle key={e}> {e} </FlagsSectionTitle>
                             <FlagsRow>
                                 {
                                     vselect[e].values.map(function(val:string, i:number) {
-                                        console.log(val, vselect[e], vselect[e].values)
-                                        // return (<Flag selected={vselect[e].unique && options[e]? options[e] == val : options[e].includes(val)}>{val}</Flag>)
-                                        return (<Flag>{val}</Flag>)
+                                        console.log(val, vselect[e], vselect[e].values, options, options[e])
+                                        return (<Flag
+                                        onClick={() => {changeOptionValue(e, val)}}
+                                        selected={() => isSelected(e, val)}>{val}</Flag>)
                                     } )
                                 }
                             </FlagsRow>
                         </FlagsSection>
                     ))
                 }
-                <Submit> Generate </Submit>
+                <Submit onClick={() => sendData()}> Generate </Submit>
             </FlagsArea>
         </Container>
     )
@@ -111,6 +154,7 @@ const Flag = styled.div`
     border: 2px solid grey;
     border-radius: 8px;
 
+    background-color: ${props => props.selected == true ? "green": "red"};
     &:hover {
         cursor: pointer;
         background-color: cyan;
