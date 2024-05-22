@@ -17,6 +17,9 @@ export default defineSchema(
     numbers: defineTable({
       value: v.number(),
     }),
+    generated_image: defineTable({
+      value: v.any(),
+    }),
   },
   // If you ever get an error about schema mismatch
   // between your data and your schema, and you cannot
