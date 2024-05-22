@@ -3,6 +3,15 @@ import NavBar from './views/Navbar';
 
 import {styled} from 'styled-components'
 
+import {
+	BrowserRouter as Router,
+	Route,
+	Routes,
+	Navigate,
+} from "react-router-dom";
+import Rate from './views/Rate';
+
+
 const App = () => {
 
 
@@ -10,7 +19,12 @@ const App = () => {
     <>
     <NavBar/>
     <Container>
-        <Home/>
+        <Router>
+            <Routes>
+                <Route path="/home" element={<Home/>}/>
+                <Route path="/rate" element={<Rate/>}/>
+            </Routes>
+        </Router>
     </Container>
     </>
   );

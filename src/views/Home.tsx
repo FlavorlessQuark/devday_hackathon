@@ -1,22 +1,22 @@
 // import { useMutation, useQuery } from "convex/react";
+import DragDropFile from "drag-drop-file-tk";
 import { useFlags } from "launchdarkly-react-client-sdk";
 import styled from "styled-components";
-import DragDropFile from "drag-drop-file-tk"
 // import { api } from "../../convex/_generated/api";
 
-import noimg from "../assets/noimg.png"
 import { useEffect, useState } from "react";
 
-import { useMutation, useQuery, useAction } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import wall1 from "../assets/wall1.webp"
 
 const Home = () => {
-
     // const numbers = useQuery(api.myFunctions.listNumbers, { count: 10 });
     const {vselect, test2} = useFlags();
     const [file, setFile] = useState<any | null>(null);
     const [options, setOptions] = useState<any>({});
     const [sel, setSEl] = useState<any>([]);
+    const [isimg, setisImg] = useState(false)
     // const addNumber = useMutation(api.myFunctions.addNumber);
     const handleChange = (files:any) => {
         // Handle selected files here
@@ -60,7 +60,7 @@ const Home = () => {
         await getBase64(file) // `file` your img file
         .then(res => console.log(res)) // `res` base64 of img file
         .catch(err => console.log(err))
-
+        setisImg(true)
     }
 
     const  isSelected = (e, val) => {
@@ -94,6 +94,12 @@ const Home = () => {
 
     return (
         <Container>
+            {
+                isimg ? <ImgArea>
+                <img src={wall1}/>
+                </ImgArea>
+                :
+                <>
             <ImgArea><DragDropFile withImagePreview={800} limit={1} handleChange={handleChange}/></ImgArea>
             <FlagsArea>
                 {
@@ -114,6 +120,8 @@ const Home = () => {
                 }
                 <Submit onClick={() => sendData()}> Generate </Submit>
             </FlagsArea>
+                </>
+}
         </Container>
     )
 }
@@ -162,7 +170,6 @@ const Flag = styled.div`
     border: 2px solid grey;
     border-radius: 8px;
 
-    background-color: ${props => props.selected};
     &:hover {
         cursor: pointer;
         background-color: cyan;
