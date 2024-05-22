@@ -8,7 +8,6 @@ import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedroc
 
 // a client can be shared by different commands.
 
-
 // END BEDROCK STUFF
 
 // Write your Convex functions in any file inside this directory (`convex`).
