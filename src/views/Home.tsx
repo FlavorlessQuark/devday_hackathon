@@ -1,7 +1,10 @@
 // import { useMutation, useQuery } from "convex/react";
-import DragDropFile from "drag-drop-file-tk";
 import { useFlags } from "launchdarkly-react-client-sdk";
 import styled from "styled-components";
+import React from 'react'
+import Dropzone from 'react-dropzone'
+
+import DragDropFile from "drag-drop-file-tk";
 // import { api } from "../../convex/_generated/api";
 
 import { useEffect, useState } from "react";
@@ -9,6 +12,7 @@ import { useEffect, useState } from "react";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import wall1 from "../assets/wall1.webp"
+import Filters from "@/components/Filters";
 
 const Home = () => {
     // const numbers = useQuery(api.myFunctions.listNumbers, { count: 10 });
@@ -16,7 +20,7 @@ const Home = () => {
     const [file, setFile] = useState<any | null>(null);
     const [options, setOptions] = useState<any>({});
     const [sel, setSEl] = useState<any>([]);
-    const [isimg, setisImg] = useState(false)
+    const [imgData, setisImg] = useState(undefined)
     // const addNumber = useMutation(api.myFunctions.addNumber);
     const handleChange = (files:any) => {
         // Handle selected files here
@@ -28,159 +32,115 @@ const Home = () => {
     const generatedImage = useQuery(api.myFunctions.getGeneratedImage);
     const runModelAction = useAction(api.myFunctions.runModel)
 
-    async function getBase64(file) {
-        return new Promise((resolve, reject) => {
+
+    async function get_files(file) {
+        // return new Promise((resolve, reject) => {
+            console.log("here os file", file)
             const reader = new FileReader()
-            reader.readAsDataURL(file)
-            reader.onload = () => {
-            resolve(reader.result)
-            }
-            reader.onerror = reject
-        })
+        //     reader.onload = () => {
+        //     console.log(reader.result)
+        //     resolve(reader.result)
+        //     }
+        //     reader.onerror = reject
+        // })
+          reader.onabort = () => console.log('file reading was aborted')
+      reader.onerror = () => console.log('file reading has failed')
+      reader.onload = () => {
+      // Do whatever you want with the file contents
+        const binaryStr = reader.result
+        console.log(binaryStr)
+        setisImg(binaryStr);
+      }
+    //   reader.readAsArrayBuffer(file[0])
+      reader.readAsDataURL(file[0])
     }
 
 // usage
 
-
-
-    const changeOptionValue = (e:string, val: string) => {
-        if (vselect[e].unique === true)
-            options[e] = val;
-        else if (!options[e].includes(val)){
-            options[e].push(val);
-        }
-        console.log(options);
-        console.log(sel)
-        sel.push(val)
-        setSEl(sel)
-        setOptions(options)
-    }
-
-    const sendData = async() => {
-        await getBase64(file) // `file` your img file
-        .then(res => console.log(res)) // `res` base64 of img file
-        .catch(err => console.log(err))
-        setisImg(true)
-    }
-
-    const  isSelected = (e, val) => {
-        console.log("Is selected? ", val, vselect[e].unique ,options[e], val)
-        if (vselect[e].unique && options[e] == val)
-        {
-            (console.log("Yes"))
-            return "green";
-        }
-        if (options[e] && options[e].includes(val))
-            {(console.log("Yes"))
-            return "green";}
-        return "red";
-    }
-
-    useEffect(() => {
-        if (vselect)
-        {
-            let _options:any = {}
-            Object.keys(vselect).map((key) => {
-                if (vselect[key].unique == true)
-                    _options[key] = null
-                else
-                    _options[key] = []
-            })
-            setOptions(_options)
-        }
-    }, [vselect])
-
     console.log(vselect)
+
+
+    // const sendData = async() => {
+    //     await getBase64(file) // `file` your img file
+    //     .then(res => console.log(res)) // `res` base64 of img file
+    //     .catch(err => console.log(err))
+    //     setisImg(true)
+    // }
 
     return (
         <Container>
-            {
-                isimg ? <ImgArea>
+            <ImgArea>
+            {/* {
+                imgData === undefined ?
                 <img src={wall1}/>
-                </ImgArea>
-                :
-                <>
-            <ImgArea><DragDropFile withImagePreview={800} limit={1} handleChange={handleChange}/></ImgArea>
-            <FlagsArea>
-                {
-                    Object.keys(vselect).map((e) => (
-                        <FlagsSection>
-                            <FlagsSectionTitle key={e}> {e} </FlagsSectionTitle>
-                            <FlagsRow>
-                                {
-                                    vselect[e].values.map((val:string) => {
-                                        return (<Flag
-                                        onClick={() => {changeOptionValue(e, val)}}
-                                        >{val}</Flag>)
-                                    } )
-                                }
-                            </FlagsRow>
-                        </FlagsSection>
-                    ))
-                }
-                <Submit onClick={() => sendData()}> Generate </Submit>
-            </FlagsArea>
-                </>
-}
+                : */}
+                <Dropzone onDrop={(acceptedFiles) => get_files(acceptedFiles)}>
+                    {({getRootProps, getInputProps}) => (
+                        <DragArea>
+                        <DragInput {...getRootProps()}>
+                            <input {...getInputProps()} />
+                            {imgData !== undefined ? <Img src={imgData}/> :
+                            <p>Drag 'n' drop some files here, or click to select files</p>
+                            }
+                        </DragInput>
+                        </DragArea>
+                    )}
+                </Dropzone>
+                <ButtonsArea>
+                    <Button> Generate </Button>
+                </ButtonsArea>
+            </ImgArea>
+            <FiltersArea>
+                <Filters fields={vselect} setFilters={setOptions}/>
+            </FiltersArea>
+
         </Container>
     )
 }
 
 const Container = styled.div`
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     width: 100%;
     height: 100%;
     align-items:center;
     padding: 40px;
+    gap: 20px;
+`
+
+const Img = styled.img`
+    position: absolute;
+`
+
+const FiltersArea = styled.div`
+    display: flex;
 `
 
 const ImgArea = styled.div`
-    // display:flex;
+    display:flex;
+    flex-direction: column;
     width: 80%;
-    height: 50%;
+    height: 90%;
     align-items: center;
+    gap: 40px;
 `
-const FlagsArea = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-`
-const FlagsSection = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-`
-const FlagsRow = styled.div`
+
+const ButtonsArea = styled.div`
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    gap: 15px;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
 `
-const FlagsSectionTitle = styled.div`
+
+const Button = styled.div`
+    padding: 12px 20px;
     display: flex;
-    flex-direction: row;
-    gap: 20px;
-`
-
-const Flag = styled.div`
-    display: flex;
-    min-width: 50px;
-    min height: 20px;
-    padding: 10px 20px;
-    border: 2px solid grey;
-    border-radius: 8px;
-
-    &:hover {
-        cursor: pointer;
-        background-color: cyan;
-    }
-`
-
-const Submit = styled.div`
-    padding: 10px 20px;
+    font-size: 20px;
+    text-align: center;
     background-color: #8fce96;
-    max-width: 100px;
-    border-radius: 80px;
+    border-radius: 8px;
     border: 1px solid black;
         &:hover {
         cursor: pointer;
@@ -188,5 +148,31 @@ const Submit = styled.div`
     }
 `
 
+const DragArea = styled.section`
+    display :flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px dashed grey;
+    border-radius: 10px;
+    height: 100%;
+    width: 100%;
+`
+
+const DragInput = styled.div`
+    display: flex;
+    width: 98%;
+    height: 98%;
+    position: relative;
+    background: #cacaca5d;
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    &:hover {
+        cursor: pointer;
+    }
+`
+// const
 
 export default Home;

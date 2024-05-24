@@ -32,8 +32,8 @@ const App = () => {
 
 const Container = styled.div`
     display:flex;
-    padding-top:60px;
-    height: calc(100vh - 60px);
+    padding-top:8%;
+    height: calc(100vh - 110px);
 `
 
 export default App;
