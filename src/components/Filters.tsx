@@ -15,6 +15,7 @@ const Filters = ({fields, setFilters}) =>
         }
         console.log(selected);
         setSelected({...selected})
+        setFilters(selected);
     }
 
     useEffect(() => {
@@ -28,6 +29,7 @@ const Filters = ({fields, setFilters}) =>
                     selected[key] = []
             })
             setSelected(selected)
+            setFilters(selected);
         }
     }, [fields])
 

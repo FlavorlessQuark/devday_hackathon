@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { query, mutation, action } from "./_generated/server";
 import { api } from "./_generated/api.js";
 
+
 // BEDROCK STUFF
 
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
@@ -20,6 +21,9 @@ export const setGeneratedImage = mutation({
   // Validators for arguments.
   args: {
     value: v.any(),
+    color: v.any(),
+    difficulty: v.any(),
+    type: v.any()
   },
 
   // Mutation implementation.
@@ -28,27 +32,52 @@ export const setGeneratedImage = mutation({
     //// Mutations can also read from the database like queries.
     //// See https://docs.convex.dev/database/writing-data.
 
-    const id = await ctx.db.insert("generated_image", { value: args.value });
+    const id = await ctx.db.insert("generated_image", {...args});
 
     console.log("Added new document with id:", id);
     // Optionally, return a value from your mutation.
-    // return id;
+    return id;
   },
 });
 
 export const getGeneratedImage = query({
   // Validators for arguments.
-  args: {},
+  args: {
+    color: v.optional(v.any()),
+    difficulty: v.optional(v.any()),
+    type: v.optional(v.any())
+  },
 
   // Query implementation.
   handler: async (ctx, args) => {
     //// Read the database as many times as you need here.
     //// See https://docs.convex.dev/database/reading-data.
     try {
-      const image = await ctx.db.query("generated_image").order("desc").take(1);
-      const output = [...image.values()][0].value;
-      console.log("outputted:", output);
-      return output;
+      let image;
+
+      if (Object.keys(args).length == 0)
+        image = await ctx.db.query("generated_image").order("desc").collect();
+      else
+        image = await ctx.db.query("generated_image")
+            .filter((q) =>
+                q.and(
+                    args.color ? q.eq(q.field("color"), args.color)
+                               : q.neq(q.field("color"), null),
+                    q.and(
+                        args.difficulty ? q.eq(q.field("difficulty"), args.difficulty)
+                               : q.neq(q.field("difficulty"), null),
+                         args.type ? q.eq(q.field("type"), args.type)
+                               : q.neq(q.field("type"), null),
+                    )
+                )
+            )
+            .collect()
+
+
+
+    //   const output = [...image.values()][0].value;
+      console.log("outputted:", image, args);
+      return image;
     } catch {
       return "test 123";
     }
@@ -57,7 +86,7 @@ export const getGeneratedImage = query({
 
 
 // You can fetch data from and send data to third-party APIs via an action:
-export const runModel = action({
+export const runModel:any = action({
   // Validators for arguments.
   args: {
     image: v.any(),
@@ -88,18 +117,21 @@ export const runModel = action({
     console.log(command)
 
     // async/await.
-    // try {
+    try {
       console.log("We sending the params");
       const response = await bedrockClient.send(command);
       console.log("response received");
       // Save the raw response
       const rawRes = response.body;
 
+    //  ctx.runMutation(api.myFunctions.setGeneratedImage, {value:rawRes})
+
+        // setGeneratedImage(rawRes);
       console.log(rawRes)
-    // } catch (error) {
-    //   // error handling.
-    //   // const { requestId, cfId, extendedRequestId } = error?.$metadata;
-    //   console.log({ error });
-    // }
+    } catch (error) {
+      // error handling.
+      // const { requestId, cfId, extendedRequestId } = error?.$metadata;
+      console.log({ error });
+    }
   },
 });

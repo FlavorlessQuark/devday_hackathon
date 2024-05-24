@@ -18,7 +18,10 @@ export default defineSchema(
       value: v.number(),
     }),
     generated_image: defineTable({
-      value: v.any(),
+      value: v.string(),
+      color: v.optional(v.string()),
+      difficulty: v.optional(v.string()),
+      type: v.optional(v.array(v.string()))
     }),
   },
   // If you ever get an error about schema mismatch

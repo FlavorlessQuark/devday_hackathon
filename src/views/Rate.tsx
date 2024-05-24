@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useFlags } from "launchdarkly-react-client-sdk";
 import w1 from "../assets/wall1.webp"
 import w2 from "../assets/wall2.webp"
 import Filters from "@/components/Filters";
+import { useConvex} from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 const Rate = () => {
     const dummydata = [
@@ -15,7 +17,28 @@ const Rate = () => {
 
     const [selected, setSelected] = useState(-1);
     const [value, setValue] = useState(0);
+    const [data, setData] = useState([]);
+    const [filters, setFilters] = useState<any>(undefined)
+
     const {vselect} = useFlags();
+    const convex = useConvex();
+    // const getGeneratedImage = useQuery(api.myFunctions.getGeneratedImage, "skip");
+
+    const getImagesFiltered = async() => {
+        convex.query(api.myFunctions.getGeneratedImage, filters).then((res) => {
+                setData(res);
+            console.log("Query res", res)
+            })
+    }
+
+
+    useEffect(() => {
+            // console.log("Query", getGeneratedImage)
+            convex.query(api.myFunctions.getGeneratedImage).then((res) => {
+                setData(res);
+            console.log("Query res", res)
+            })
+        }, [])
 
     return (
         <Container>
@@ -23,7 +46,7 @@ const Rate = () => {
             <SelectedContainer>
                 <Popup>
                     <Cross onClick={() => setSelected(-1)}> X </Cross>
-                    <SelectedImage src={dummydata[selected].img}/>
+                    <SelectedImage src={data[selected].value}/>
                     <SliderContainer>
                         <SelectedSlider onChange={(e) => setValue(e.target.valueAsNumber)} type="range" orient="vertical" stpe="1" min="0" max="10" list="Svalues"/>
                         <datalist id="Svalues">
@@ -41,7 +64,7 @@ const Rate = () => {
                         </datalist>
                         <SliderValue> {value} / 10</SliderValue>
 
-                        <SliderSubmit> Rate it </SliderSubmit>
+                        <SliderSubmit onClick={() => setSelected(-1)}> Rate it </SliderSubmit>
                     </SliderContainer>
                         {/* <Row>
                             <Button onClick={() => setSelected(-1)}> Meh</Button>
@@ -52,24 +75,36 @@ const Rate = () => {
             </SelectedContainer> }
             <Row>
                 {
-                    Object.keys(dummydata).map((e,i) => (
+                    data.map((e,i) => (
                     <RouteContainer>
                         <ImgTile>
-                            <Im onClick={() => {setSelected(i); setValue(0)}} src={dummydata[e].img}/>
+                            <Im onClick={() => {setSelected(i); setValue(0)}} src={e.value}/>
                         </ImgTile>
                         <FlagContainer>
                             {
-                                (dummydata[e].tags).map((flag) =><Flag>{flag}</Flag>)
+                                (Object.keys(e)).map((flag) => flag !== "value" && flag[0] != '_' &&<Flag>{e[flag]}</Flag>)
                             }
                         </FlagContainer>
                     </RouteContainer>
                     ))
                 }
             </Row>
-            <Filters fields={vselect}/>
+
+            <FilterArea>
+                <Filters fields={vselect} setFilters={setFilters}/>
+                <Button onClick={() =>getImagesFiltered()}> Filter </Button>
+            </FilterArea>
         </Container>
     )
 }
+
+    const FilterArea = styled.div`
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    `
+
     const Container = styled.div`
         display: flex;
         flex-direction: row;
@@ -209,9 +244,16 @@ const Rate = () => {
     `
     const Button = styled.button`
         display: flex;
-        background: white;
         border: 1px solid black;
-        height: 20px;
+        padding: 10px 40px;
+        font-size: 30px;
+        background: #1aff3e5e;
+        width: fit-content;
+        border-radius: 8px;
+        &:hover {
+            cursor:pointer;
+            background: #22e341e3;
+        }
     `
 const Flag = styled.div`
     display: flex;
