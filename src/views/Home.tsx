@@ -60,7 +60,7 @@ const Home = () => {
 
 // usage
 
-    console.log(vselect)
+    console.log("Launchdarkly", vselect)
 
 
     const sendData = async() => {
@@ -136,6 +136,12 @@ const Container = styled.div`
 
 const Img = styled.img`
     position: absolute;
+    top: 0;
+  bottom: 0;
+  object-fit: scale-down;
+  display: flex;
+  width: 100%;
+  height: 100%;
 `
 
 const FiltersArea = styled.div`
@@ -146,7 +152,7 @@ const ImgArea = styled.div`
     display:flex;
     flex-direction: column;
     width: 80%;
-    height: 90%;
+    height: 100%;
     align-items: center;
     gap: 40px;
 `

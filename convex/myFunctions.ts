@@ -21,9 +21,9 @@ export const setGeneratedImage = mutation({
   // Validators for arguments.
   args: {
     value: v.any(),
-    color: v.any(),
-    difficulty: v.any(),
-    type: v.any()
+    color:v.optional( v.any()),
+    difficulty:v.optional( v.any()),
+    type:v.optional( v.any())
   },
 
   // Mutation implementation.

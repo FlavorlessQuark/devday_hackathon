@@ -33,7 +33,6 @@ const Filters = ({fields, setFilters}) =>
         }
     }, [fields])
 
-    console.log(selected)
     return (
         <Container>
             <ContainerName>Filters</ContainerName>
